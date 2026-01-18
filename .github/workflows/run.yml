@@ -16,5 +16,5 @@ jobs:
       - run: npm ci
       - run: npm run main
         env:
-          GLADOS: ${{ secrets.GLADOS }}
+          COOKIE: ${{ secrets.GLADOS }}
           NOTIFY: ${{ secrets.NOTIFY }}
