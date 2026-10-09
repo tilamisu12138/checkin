@@ -2,7 +2,7 @@ name: run
 
 on:
   workflow_dispatch:
-  push: 
+  push:
   schedule:
     - cron: '45 16 * * *'
 
@@ -19,3 +19,31 @@ jobs:
         env:
           GLADOS: ${{ secrets.GLADOS }}
           NOTIFY: ${{ secrets.NOTIFY }}
+
+  keepalive:
+    # 定时运行或手动运行时检查是否需要保活
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: 仓库超过30天无提交时自动保活
+        run: |
+          last_commit=$(git log -1 --format=%ct)
+          current_time=$(date +%s)
+          inactive_seconds=$((current_time - last_commit))
+
+          if [ "$inactive_seconds" -ge 2592000 ]; then
+            date -u > .keepalive
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .keepalive
+            git commit -m "chore: keep workflow active"
+            git push
+          else
+            echo "最近30天内有提交，无需保活"
+          fi
