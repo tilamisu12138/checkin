@@ -19,6 +19,7 @@ jobs:
         env:
           GLADOS: ${{ secrets.GLADOS }}
           NOTIFY: ${{ secrets.NOTIFY }}
+          GLADOS_UA: ${{ secrets.GLADOS_UA }}
 
   keepalive:
     # 定时运行或手动运行时检查是否需要保活
